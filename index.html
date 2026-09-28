@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090c19">
+  <title>Prisme 3D — Vidéo anaglyphe</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #090c19;
+      color: #f7f8ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 15% 5%, #69234266, transparent 35%),
+        radial-gradient(circle at 90% 25%, #116b8066, transparent 35%),
+        #090c19;
+    }
+
+    main {
+      width: min(100%, 760px);
+      margin: auto;
+      padding: 28px 18px 60px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 8px 12px;
+      border: 1px solid #ffffff35;
+      border-radius: 100px;
+      background: #ffffff0c;
+      font-size: 12px;
+      letter-spacing: .12em;
+    }
+
+    h1 {
+      font-size: clamp(42px, 12vw, 76px);
+      line-height: 1;
+      margin: 25px 0 12px;
+      letter-spacing: -.07em;
+    }
+
+    h1 span {
+      color: #ff4e72;
+      text-shadow: 4px 0 #2fe3f4;
+    }
+
+    .subtitle {
+      color: #b9c0d7;
+      line-height: 1.5;
+      margin-bottom: 28px;
+    }
+
+    .panel {
+      background: #151a2be8;
+      border: 1px solid #ffffff1c;
+      border-radius: 22px;
+      padding: 18px;
+      box-shadow: 0 20px 55px #0005;
+    }
+
+    .upload {
+      display: block;
+      text-align: center;
+      padding: 18px;
+      border-radius: 15px;
+      background: linear-gradient(100deg, #ff4768, #b849ba 50%, #1bc9d9);
+      color: white;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    input[type="file"] { display: none; }
+
+    .viewer {
+      margin-top: 18px;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #03050b;
+      border: 1px solid #ffffff1a;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      min-height: 190px;
+      object-fit: contain;
+    }
+
+    .hint {
+      margin: 12px 0;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #b9c0d7;
+    }
+
+    .control { margin-top: 20px; }
+
+    .control label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    input[type="range"] { width: 100%; accent-color: #2fe3f4; }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    button, .download {
+      border: 1px solid #ffffff26;
+      border-radius: 12px;
+      background: #262e45;
+      color: white;
+      font: inherit;
+      font-weight: 700;
+      padding: 13px 16px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    button:disabled { opacity: .45; cursor: not-allowed; }
+    .primary { background: #146e7c; }
+
+    .download {
+      display: none;
+      margin-top: 15px;
+      text-align: center;
+      background: #126e59;
+    }
+
+    #status {
+      min-height: 24px;
+      color: #d1d8e9;
+      line-height: 1.5;
+    }
+
+    .small {
+      font-size: 12px;
+      line-height: 1.6;
+      color: #9ea8bf;
+    }
+
+    video { display: none; }
+  </style>
+</head>
+
+<body>
+  <main>
+    <div class="badge">PRISME 3D · ROUGE + CYAN</div>
+    <h1>Vos vidéos.<br><span>Une autre dimension.</span></h1>
+    <p class="subtitle">
+      Choisissez une vidéo sur votre iPhone, réglez l'effet et regardez-la
+      avec des lunettes anaglyphes rouge-cyan. Gratuit, sans compte :
+      le traitement s'effectue dans votre navigateur.
+    </p>
+
+    <section class="panel">
+      <label class="upload" for="file">＋ Choisir une vidéo</label>
+      <input id="file" type="file" accept="video/*">
+
+      <div class="viewer">
+        <canvas id="screen" width="640" height="360"></canvas>
+      </div>
+
+      <p class="hint" id="details">
+        Lunette : filtre rouge devant l'œil gauche, cyan devant l'œil droit.
+      </p>
+
+      <div class="control">
+        <label for="depth">
+          <strong>Intensité de l'effet</strong>
+          <span id="value">8</span>
+        </label>
+        <input id="depth" type="range" min="0" max="24" value="8">
+      </div>
+
+      <div class="buttons">
+        <button id="play" class="primary" disabled>▶ Lire</button>
+        <button id="pause" disabled>Ⅱ Pause</button>
+        <button id="record" disabled>⬇ Convertir et exporter</button>
+        <button id="cancel" disabled>Annuler</button>
+      </div>
+
+      <a id="download" class="download">Télécharger la vidéo convertie</a>
+      <p id="status" role="status">Choisissez une vidéo pour commencer.</p>
+
+      <p class="small">
+        Effet 3D simulé, sans estimation de profondeur. Les formats lisibles
+        et l'export dépendent de votre navigateur. Export sans son, réalisé
+        pendant la lecture : une longue vidéo prend donc du temps.
+      </p>
+    </section>
+
+    <video id="source" playsinline muted preload="metadata"></video>
+  </main>
+
+  <script>
+    const file = document.getElementById("file");
+    const video = document.getElementById("source");
+    const canvas = document.getElementById("screen");
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    const depth = document.getElementById("depth");
+    const value = document.getElementById("value");
+    const details = document.getElementById("details");
+    const status = document.getElementById("status");
+    const play = document.getElementById("play");
+    const pause = document.getElementById("pause");
+    const record = document.getElementById("record");
+    const cancel = document.getElementById("cancel");
+    const download = document.getElementById("download");
+
+    let sourceURL = null;
+    let exportURL = null;
+    let recorder = null;
+    let stream = null;
+    let frame = 0;
+    let recording = false;
+    let cancelled = false;
+    let leftPixels = null;
+
+    const buffer = document.createElement("canvas");
+    const bufferContext = buffer.getContext("2d", { willReadFrequently: true });
+
+    function message(text) { status.textContent = text; }
+
+    function cleanExport() {
+      download.style.display = "none";
+      download.removeAttribute("href");
+      if (exportURL) URL.revokeObjectURL(exportURL);
+      exportURL = null;
+    }
+
+    function draw() {
+      if (!video.videoWidth || !video.videoHeight) return;
+
+      const width = canvas.width;
+      const height = canvas.height;
+      const shift = Number(depth.value);
+
+      if (shift === 0) {
+        ctx.drawImage(video, 0, 0, width, height);
+        return;
+      }
+
+      bufferContext.fillStyle = "#000";
+      bufferContext.fillRect(0, 0, width, height);
+      bufferContext.drawImage(video, -shift, 0, width, height);
+      leftPixels = bufferContext.getImageData(0, 0, width, height);
+
+      bufferContext.fillRect(0, 0, width, height);
+      bufferContext.drawImage(video, shift, 0, width, height);
+      const rightPixels = bufferContext.getImageData(0, 0, width, height);
+
+      const left = leftPixels.data;
+      const right = rightPixels.data;
+
+      for (let i = 0; i < left.length; i += 4) {
+        right[i] = left[i];
+        right[i + 3] = 255;
+      }
+
+      ctx.putImageData(rightPixels, 0, 0);
+    }
+
+    function animate() {
+      if (video.paused || video.ended) return;
+      draw();
+      frame = requestAnimationFrame(animate);
+    }
+
+    function stopStream() {
+      if (stream) stream.getTracks().forEach(track => track.stop());
+      stream = null;
+    }
+
+    function resetRecordingUI() {
+      recording = false;
+      record.disabled = !sourceURL;
+      cancel.disabled = true;
+      play.disabled = !sourceURL;
+      stopStream();
+    }
+
+    file.addEventListener("change", () => {
+      const selected = file.files && file.files[0];
+      if (!selected) return;
+
+      if (recorder && recorder.state !== "inactive") {
+        message("Terminez ou annulez la conversion avant de changer de vidéo.");
+        file.value = "";
+        return;
+      }
+
+      video.pause();
+      cancelAnimationFrame(frame);
+      cleanExport();
+      if (sourceURL) URL.revokeObjectURL(sourceURL);
+
+      sourceURL = URL.createObjectURL(selected);
+      video.src = sourceURL;
+      video.load();
+
+      play.disabled = true;
+      pause.disabled = true;
+      record.disabled = true;
+      details.textContent = selected.name;
+      message("Chargement de la vidéo…");
+    });
+
+    video.addEventListener("loadedmetadata", () => {
+      const width = video.videoWidth;
+      const height = video.videoHeight;
+      if (!width || !height) {
+        message("Impossible de lire les dimensions de cette vidéo.");
+        return;
+      }
+
+      // Réduit la taille de traitement pour limiter la mémoire sur iPhone.
+      const ratio = Math.min(1, 960 / Math.max(width, height));
+      canvas.width = Math.max(2, Math.round(width * ratio));
+      canvas.height = Math.max(2, Math.round(height * ratio));
+      buffer.width = canvas.width;
+      buffer.height = canvas.height;
+
+      details.textContent =
+        (file.files[0]?.name || "Vidéo") + " · " +
+        width + " × " + height +
+        " · aperçu traité en " + canvas.width + " × " + canvas.height;
+
+      play.disabled = false;
+      record.disabled = false;
+      message("Vidéo prête. Appuyez sur Lire ou Convertir et exporter.");
+    });
+
+    video.addEventListener("loadeddata", draw);
+    video.addEventListener("seeked", draw);
+
+    video.addEventListener("error", () => {
+      message("Cette vidéo ne peut pas être lue ici. Essayez un autre fichier.");
+      play.disabled = true;
+      record.disabled = true;
+    });
+
+    video.addEventListener("ended", () => {
+      cancelAnimationFrame(frame);
+      draw();
+      pause.disabled = true;
+      play.disabled = false;
+      if (recording && recorder && recorder.state === "recording") {
+        recorder.stop();
+      }
+    });
+
+    depth.addEventListener("input", () => {
+      value.textContent = depth.value;
+      if (video.paused) draw();
+    });
+
+    play.addEventListener("click", async () => {
+      try {
+        if (video.ended) video.currentTime = 0;
+        await video.play();
+        cancelAnimationFrame(frame);
+        animate();
+        pause.disabled = false;
+        play.disabled = true;
+        message("Lecture en cours. Regardez l'image avec vos lunettes rouge-cyan.");
+      } catch (error) {
+        message("Lecture impossible : " + error.message);
+      }
+    });
+
+    pause.addEventListener("click", () => {
+      if (recording) return;
+      video.pause();
+      cancelAnimationFrame(frame);
+      play.disabled = false;
+      pause.disabled = true;
+      message("Lecture en pause.");
+    });
+
+    record.addEventListener("click", async () => {
+      if (!sourceURL || recording) return;
+
+      if (!canvas.captureStream || !window.MediaRecorder) {
+        message("L'export vidéo n'est pas disponible dans ce navigateur. L'aperçu reste utilisable.");
+        return;
+      }
+
+      cleanExport();
+      cancelled = false;
+      recording = true;
+      record.disabled = true;
+      play.disabled = true;
+      pause.disabled = true;
+      cancel.disabled = false;
+
+      try {
+        video.pause();
+        cancelAnimationFrame(frame);
+        video.currentTime = 0;
+        draw();
+
+        stream = canvas.captureStream(24);
+
+        const formats = [
+          "video/mp4",
+          "video/webm;codecs=vp9",
+          "video/webm"
+        ];
+        const mime = formats.find(type => MediaRecorder.isTypeSupported(type));
+        recorder = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
+        const chunks = [];
+
+        recorder.ondataavailable = event => {
+          if (event.data.size) chunks.push(event.data);
+        };
+
+        recorder.onerror = () => {
+          message("L'export a échoué. Vous pouvez réessayer avec une vidéo plus courte.");
+        };
+
+        recorder.onstop = () => {
+          video.pause();
+          cancelAnimationFrame(frame);
+
+          if (!cancelled && chunks.length) {
+            const type = recorder.mimeType || mime || "video/webm";
+            const blob = new Blob(chunks, { type });
+            const extension = type.includes("mp4") ? "mp4" : "webm";
+
+            exportURL = URL.createObjectURL(blob);
+            download.href = exportURL;
+            download.download = "prisme-3d." + extension;
+            download.textContent = "⬇ Télécharger prisme-3d." + extension;
+            download.style.display = "block";
+            message("Conversion terminée. Touchez le bouton de téléchargement.");
+          } else if (!cancelled) {
+            message("Aucune vidéo n'a été produite. L'export peut être incompatible avec ce navigateur.");
+          } else {
+            message("Conversion annulée.");
+          }
+
+          resetRecordingUI();
+        };
+
+        recorder.start();
+        await video.play();
+        cancelAnimationFrame(frame);
+        animate();
+        message("Conversion en cours : gardez cette page ouverte jusqu'à la fin de la vidéo.");
+      } catch (error) {
+        if (recorder && recorder.state !== "inactive") {
+          cancelled = true;
+          recorder.stop();
+        } else {
+          resetRecordingUI();
+        }
+        video.pause();
+        message("Export impossible sur cet appareil : " + error.message);
+      }
+    });
+
+    cancel.addEventListener("click", () => {
+      cancelled = true;
+      video.pause();
+      cancelAnimationFrame(frame);
+
+      if (recorder && recorder.state !== "inactive") {
+        recorder.stop();
+      } else {
+        resetRecordingUI();
+        message("Conversion annulée.");
+      }
+    });
+  </script>
+</body>
+</html>

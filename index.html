@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#090c19">
-  <title>Prisme 3D — Vidéo anaglyphe</title>
+  <title>Prisme 3D — Anaglyphe rouge-bleu</title>
 
   <style>
     :root {
@@ -13,7 +13,9 @@
       background: #090c19;
       color: #f7f8ff;
     }
+
     * { box-sizing: border-box; }
+
     body {
       margin: 0;
       min-height: 100vh;
@@ -22,512 +24,633 @@
         radial-gradient(circle at 90% 25%, #116b8066, transparent 35%),
         #090c19;
     }
-    main { width: min(100%, 760px); margin: auto; padding: 28px 18px 60px; }
+
+    main {
+      width: min(100%, 780px);
+      margin: auto;
+      padding: 26px 17px 55px;
+    }
+
     .badge {
-      display: inline-block; padding: 8px 12px; border: 1px solid #ffffff35;
-      border-radius: 100px; background: #ffffff0c; font-size: 12px; letter-spacing: .12em;
+      display: inline-block;
+      padding: 8px 12px;
+      border: 1px solid #ffffff35;
+      border-radius: 100px;
+      background: #ffffff0c;
+      font-size: 12px;
+      letter-spacing: .12em;
     }
-    h1 { font-size: clamp(42px, 12vw, 76px); line-height: 1; margin: 25px 0 12px; letter-spacing: -.07em; }
-    h1 span { color: #ff4e72; text-shadow: 4px 0 #2fe3f4; }
-    .subtitle, .hint { color: #b9c0d7; line-height: 1.5; }
-    .subtitle { margin-bottom: 28px; }
-    .panel { background: #151a2be8; border: 1px solid #ffffff1c; border-radius: 22px; padding: 18px; }
-    .upload {
-      display: block; text-align: center; padding: 18px; border-radius: 15px;
-      background: linear-gradient(100deg, #ff4768, #b849ba 50%, #1bc9d9);
-      color: white; font-weight: 800; cursor: pointer;
+
+    h1 {
+      margin: 24px 0 10px;
+      font-size: clamp(40px, 11vw, 72px);
+      line-height: 1;
+      letter-spacing: -.07em;
     }
-    input[type="file"] { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
-    .viewer { margin-top: 18px; border-radius: 14px; overflow: hidden; background: #03050b; border: 1px solid #ffffff1a; }
-    canvas { display: block; width: 100%; height: auto; min-height: 190px; background: #03050b; }
-    .control { margin-top: 18px; }
-    .control label { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
-    input[type="range"], select { width: 100%; accent-color: #2fe3f4; }
-    select {
-      padding: 11px; color: white; background: #262e45; border: 1px solid #ffffff26;
-      border-radius: 10px; font: inherit;
+
+    h1 span {
+      color: #ff405f;
+      text-shadow: 4px 0 #287bff;
     }
-    .buttons { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
-    button, .download {
-      border: 1px solid #ffffff26; border-radius: 12px; background: #262e45;
-      color: white; font: inherit; font-weight: 700; padding: 13px 16px; cursor: pointer;
-      text-decoration: none;
+
+    .subtitle {
+      color: #bdc2d7;
+      line-height: 1.55;
     }
-    button:disabled { opacity: .45; cursor: not-allowed; }
-    .primary { background: #146e7c; }
-    .download { display: none; margin-top: 15px; text-align: center; background: #126e59; }
-    #status { min-height: 24px; margin-top: 14px; color: #d1d8e9; line-height: 1.5; overflow-wrap: anywhere; }
-    .small { color: #929bb4; font-size: 12px; line-height: 1.5; margin-top: 20px; }
-    .expert { display: none; border-top: 1px solid #ffffff20; margin-top: 18px; padding-top: 4px; }
-    .expert.visible { display: block; }
-    .note { color: #9ea8bf; font-size: 12px; line-height: 1.5; }
+
+    .panel {
+      margin-top: 17px;
+      padding: 18px;
+      border: 1px solid #ffffff1c;
+      border-radius: 20px;
+      background: #111629d9;
+      box-shadow: 0 15px 45px #0004;
+    }
+
+    label, .label {
+      display: block;
+      margin: 12px 0 7px;
+      color: #dfe3f3;
+      font-size: 14px;
+      font-weight: 650;
+    }
+
+    input, select, button {
+      font: inherit;
+    }
+
+    input[type="file"], select {
+      width: 100%;
+      padding: 12px;
+      color: #f7f8ff;
+      border: 1px solid #ffffff24;
+      border-radius: 12px;
+      background: #090d1c;
+    }
+
+    input[type="range"] { width: 100%; accent-color: #ff4566; }
+
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: #ff4566;
+      vertical-align: middle;
+    }
+
+    .checkline {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 14px;
+      color: #dfe3f3;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .checkline label {
+      display: inline;
+      margin: 0;
+      font-weight: 500;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .value {
+      float: right;
+      color: #ff9aad;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .hint, .status {
+      color: #aab1c9;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .status {
+      min-height: 22px;
+      margin-top: 12px;
+      color: #bfe9ff;
+    }
+
+    .video-wrap {
+      overflow: hidden;
+      margin-top: 16px;
+      border: 1px solid #ffffff20;
+      border-radius: 16px;
+      background: #000;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: #000;
+    }
+
     video { display: none; }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    button {
+      min-height: 48px;
+      padding: 12px 14px;
+      border: 0;
+      border-radius: 13px;
+      color: white;
+      background: #ff3f61;
+      font-weight: 750;
+      cursor: pointer;
+    }
+
+    button.secondary { background: #27304a; }
+    button:disabled { opacity: .45; cursor: not-allowed; }
+
+    .expert-only[hidden] { display: none !important; }
+
+    @media (max-width: 520px) {
+      .grid { grid-template-columns: 1fr; }
+      .panel { padding: 15px; }
+    }
   </style>
 </head>
 
 <body>
 <main>
-  <div class="badge">PRISME 3D · ANAGLYPHE</div>
-  <h1>Donne de la <span>profondeur</span>.</h1>
-  <p class="subtitle">Choisis une vidéo, règle l’effet rouge-cyan et exporte le résultat.</p>
+  <div class="badge">ATELIER VIDÉO · ROUGE / BLEU</div>
+  <h1>Prisme <span>3D</span></h1>
+  <p class="subtitle">
+    Charge une vidéo, règle l’effet pour tes lunettes et exporte le résultat.
+    Pour un meilleur aperçu, utilise un navigateur récent et garde cette page ouverte pendant l’export.
+  </p>
 
   <section class="panel">
-    <label class="upload" for="file">＋ Choisir une vidéo</label>
-    <input id="file" type="file" accept="video/*">
+    <label for="fileInput">1. Choisir une vidéo</label>
+    <input id="fileInput" type="file" accept="video/*">
+    <p class="hint">La vidéo est traitée localement dans ton navigateur.</p>
 
-    <div class="viewer">
-      <canvas id="canvas" aria-label="Aperçu anaglyphe"></canvas>
+    <label for="modeSelect">2. Mode de réglage</label>
+    <select id="modeSelect">
+      <option value="normal">Normal — réglages simples</option>
+      <option value="auto">Automatique — réglages selon la vidéo</option>
+      <option value="expert">Expert — réglages détaillés</option>
+    </select>
+
+    <div id="autoInfo" class="hint" style="margin-top:10px" hidden>
+      Le mode automatique choisit des réglages de départ à partir de la résolution
+      et de la durée. Il ne crée pas une carte de profondeur IA.
     </div>
 
-    <p class="hint">L’aperçu lit le son original. L’export associe le son à l’image traitée lorsque le navigateur le permet.</p>
+    <div id="expertSettings" class="expert-only" hidden>
+      <div class="grid">
+        <div>
+          <label for="depthRange">
+            Intensité 3D <span class="value" id="depthValue">3 %</span>
+          </label>
+          <input id="depthRange" type="range" min="0" max="8" step="0.1" value="3">
+        </div>
+        <div>
+          <label for="qualitySelect">Résolution d’export</label>
+          <select id="qualitySelect">
+            <option value="source">Comme la source</option>
+            <option value="1080">Jusqu’à 1080p</option>
+            <option value="720">Jusqu’à 720p</option>
+          </select>
+        </div>
+        <div>
+          <label for="fpsSelect">Fréquence d’images</label>
+          <select id="fpsSelect">
+            <option value="24">24 images/s</option>
+            <option value="30" selected>30 images/s</option>
+            <option value="60">60 images/s</option>
+          </select>
+        </div>
+        <div>
+          <label for="bitrateSelect">Débit vidéo demandé</label>
+          <select id="bitrateSelect">
+            <option value="6000000">6 Mbit/s — léger</option>
+            <option value="12000000" selected>12 Mbit/s — équilibré</option>
+            <option value="20000000">20 Mbit/s — élevé</option>
+          </select>
+        </div>
+      </div>
 
-    <div class="control">
-      <label for="mode"><strong>Mode de réglage</strong></label>
-      <select id="mode">
-        <option value="normal">Normal — réglages simples</option>
-        <option value="auto">Automatique — réglages adaptés à la vidéo</option>
-        <option value="expert">Expert — réglages personnalisés</option>
-      </select>
+      <div class="checkline">
+        <input id="swapViews" type="checkbox">
+        <label for="swapViews">Inverser les vues gauche/droite si le relief paraît inversé</label>
+      </div>
     </div>
 
-    <div class="control">
-      <label for="depth"><strong>Profondeur anaglyphe</strong><span id="depthValue">8 px</span></label>
-      <input id="depth" type="range" min="0" max="24" value="8">
-    </div>
-
-    <div id="expertPanel" class="expert">
-      <p class="note"><strong>Réglages expert.</strong> Une résolution ou une fréquence élevée demande davantage de mémoire et de puissance.</p>
-
-      <div class="control">
-        <label for="resolution"><strong>Résolution de sortie</strong></label>
-        <select id="resolution">
-          <option value="720">720p — plus léger</option>
-          <option value="1080">1080p — haute définition</option>
-          <option value="source">Résolution source (max. 1920 px)</option>
-        </select>
-      </div>
-
-      <div class="control">
-        <label for="fps"><strong>Images par seconde</strong></label>
-        <select id="fps">
-          <option value="24">24 fps</option>
-          <option value="30" selected>30 fps</option>
-          <option value="60">60 fps — très exigeant</option>
-        </select>
-      </div>
-
-      <div class="control">
-        <label for="vbitrate"><strong>Qualité vidéo</strong><span id="vbitrateValue">8 Mbit/s</span></label>
-        <input id="vbitrate" type="range" min="2" max="20" value="8">
-      </div>
-
-      <div class="control">
-        <label for="abitrate"><strong>Qualité audio</strong></label>
-        <select id="abitrate">
-          <option value="128000">128 kbit/s</option>
-          <option value="192000" selected>192 kbit/s</option>
-          <option value="256000">256 kbit/s</option>
-          <option value="320000">320 kbit/s</option>
-        </select>
-      </div>
-
-      <div class="control">
-        <label for="format"><strong>Format préféré</strong></label>
-        <select id="format">
-          <option value="auto">Automatique</option>
-          <option value="mp4">MP4 si compatible</option>
-          <option value="webm">WebM si compatible</option>
-        </select>
-      </div>
+    <div class="video-wrap">
+      <canvas id="canvas" width="640" height="360"></canvas>
     </div>
 
     <div class="buttons">
-      <button id="play" class="primary" disabled>▶ Lire</button>
-      <button id="pause" disabled>Ⅱ Pause</button>
-      <button id="record" disabled>⬇ Convertir et exporter</button>
-      <button id="cancel" disabled>Annuler</button>
+      <button id="playButton" class="secondary" disabled>Lire / mettre en pause</button>
+      <button id="exportButton" disabled>Exporter la vidéo</button>
     </div>
 
-    <a id="download" class="download">⬇ Télécharger la vidéo</a>
-    <div id="status" role="status" aria-live="polite">Choisis une vidéo pour commencer.</div>
-
-    <p class="small">
-      Le mode automatique adapte les paramètres techniques à la taille et à la durée de la vidéo.
-      Il ne peut pas reconstruire précisément la profondeur réelle d’une scène à partir d’une vidéo 2D.
-      Garde la page ouverte pendant l’export.
-    </p>
+    <div id="status" class="status" role="status">Choisis une vidéo pour commencer.</div>
   </section>
+
+  <video id="sourceVideo" playsinline></video>
 </main>
 
-<video id="video" playsinline preload="metadata"></video>
-
 <script>
-"use strict";
+(() => {
+  "use strict";
 
-const $ = id => document.getElementById(id);
-const fileInput = $("file");
-const video = $("video");
-const canvas = $("canvas");
-const ctx = canvas.getContext("2d", { willReadFrequently: true });
-const mode = $("mode");
-const depth = $("depth");
-const depthValue = $("depthValue");
-const expertPanel = $("expertPanel");
-const resolution = $("resolution");
-const fps = $("fps");
-const vbitrate = $("vbitrate");
-const vbitrateValue = $("vbitrateValue");
-const abitrate = $("abitrate");
-const format = $("format");
-const playButton = $("play");
-const pauseButton = $("pause");
-const recordButton = $("record");
-const cancelButton = $("cancel");
-const downloadLink = $("download");
-const statusBox = $("status");
+  const fileInput = document.getElementById("fileInput");
+  const modeSelect = document.getElementById("modeSelect");
+  const expertSettings = document.getElementById("expertSettings");
+  const autoInfo = document.getElementById("autoInfo");
+  const depthRange = document.getElementById("depthRange");
+  const depthValue = document.getElementById("depthValue");
+  const qualitySelect = document.getElementById("qualitySelect");
+  const fpsSelect = document.getElementById("fpsSelect");
+  const bitrateSelect = document.getElementById("bitrateSelect");
+  const swapViews = document.getElementById("swapViews");
+  const video = document.getElementById("sourceVideo");
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d", { alpha: false });
+  const playButton = document.getElementById("playButton");
+  const exportButton = document.getElementById("exportButton");
+  const status = document.getElementById("status");
 
-let videoURL = null;
-let exportURL = null;
-let canvasStream = null;
-let audioContext = null;
-let audioSource = null;
-let audioDestination = null;
-let mediaRecorder = null;
-let chunks = [];
-let animationFrame = 0;
-let recording = false;
-let cancelled = false;
+  let videoURL = null;
+  let exportURL = null;
+  let animationFrame = 0;
+  let audioContext = null;
+  let audioDestination = null;
+  let audioSource = null;
+  let recorder = null;
+  let chunks = [];
+  let exporting = false;
 
-function status(text) { statusBox.textContent = text; }
-
-function targetSize() {
-  if (!video.videoWidth || !video.videoHeight) return [640, 360];
-
-  let maxWidth = 1280;
-  if (mode.value === "expert") {
-    maxWidth = resolution.value === "source"
-      ? 1920
-      : Number(resolution.value);
-  } else if (mode.value === "auto") {
-    maxWidth = video.videoWidth >= 1920 ? 1920 : 1280;
+  function say(message) {
+    status.textContent = message;
   }
 
-  const scale = Math.min(1, maxWidth / video.videoWidth);
-  return [
-    Math.max(2, Math.round(video.videoWidth * scale / 2) * 2),
-    Math.max(2, Math.round(video.videoHeight * scale / 2) * 2)
-  ];
-}
-
-function drawFrame() {
-  if (!video.videoWidth || !video.videoHeight) return;
-
-  const [width, height] = targetSize();
-  if (canvas.width !== width || canvas.height !== height) {
-    canvas.width = width;
-    canvas.height = height;
+  function currentDepthPercent() {
+    if (modeSelect.value === "normal") return 2.5;
+    if (modeSelect.value === "auto") return 2;
+    return Number(depthRange.value);
   }
 
-  try {
-    ctx.drawImage(video, 0, 0, width, height);
-    const image = ctx.getImageData(0, 0, width, height);
-    const pixels = image.data;
-    const original = new Uint8ClampedArray(pixels);
-    const scale = width / video.videoWidth;
-    const offset = Math.round(Number(depth.value) * scale);
+  function currentFps() {
+    if (modeSelect.value === "normal") return 30;
+    if (modeSelect.value === "auto") return 30;
+    return Number(fpsSelect.value);
+  }
 
-    for (let y = 0; y < height; y++) {
-      for (let x = 0; x < width; x++) {
-        const i = (y * width + x) * 4;
-        const rx = Math.min(width - 1, x + offset);
-        const cx = Math.max(0, x - offset);
-        const ri = (y * width + rx) * 4;
-        const ci = (y * width + cx) * 4;
-        pixels[i] = original[ri];
-        pixels[i + 1] = original[ci + 1];
-        pixels[i + 2] = original[ci + 2];
-      }
+  function currentBitrate() {
+    if (modeSelect.value === "normal") return 8000000;
+    if (modeSelect.value === "auto") return 10000000;
+    return Number(bitrateSelect.value);
+  }
+
+  function updateModeUI() {
+    const mode = modeSelect.value;
+    expertSettings.hidden = mode !== "expert";
+    autoInfo.hidden = mode !== "auto";
+
+    if (mode === "auto" && video.videoWidth) {
+      applyAutomaticSettings();
     }
-    ctx.putImageData(image, 0, 0);
-  } catch (error) {
-    status("Impossible de traiter l’image : " + error.message);
-  }
-}
-
-function renderLoop() {
-  drawFrame();
-  if (!video.paused && !video.ended) animationFrame = requestAnimationFrame(renderLoop);
-}
-
-function startLoop() {
-  cancelAnimationFrame(animationFrame);
-  renderLoop();
-}
-
-function createAudioGraph() {
-  if (audioDestination) return;
-  const AC = window.AudioContext || window.webkitAudioContext;
-  if (!AC) throw new Error("Web Audio n’est pas disponible.");
-  audioContext = new AC();
-  audioSource = audioContext.createMediaElementSource(video);
-  audioDestination = audioContext.createMediaStreamDestination();
-  audioSource.connect(audioContext.destination);
-  audioSource.connect(audioDestination);
-}
-
-function getMimeType() {
-  if (!window.MediaRecorder) return null;
-  if (typeof MediaRecorder.isTypeSupported !== "function") return "";
-
-  const mp4 = [
-    "video/mp4;codecs=avc1.42E01E,mp4a.40.2",
-    "video/mp4"
-  ];
-  const webm = [
-    "video/webm;codecs=vp9,opus",
-    "video/webm;codecs=vp8,opus",
-    "video/webm"
-  ];
-
-  let candidates = [...mp4, ...webm];
-  if (mode.value === "expert" && format.value === "mp4") candidates = [...mp4, ...webm];
-  if (mode.value === "expert" && format.value === "webm") candidates = [...webm, ...mp4];
-
-  return candidates.find(type => MediaRecorder.isTypeSupported(type)) || null;
-}
-
-function clearDownload() {
-  if (exportURL) URL.revokeObjectURL(exportURL);
-  exportURL = null;
-  downloadLink.removeAttribute("href");
-  downloadLink.style.display = "none";
-  chunks = [];
-}
-
-function stopCanvasStream() {
-  if (canvasStream) canvasStream.getTracks().forEach(track => track.stop());
-  canvasStream = null;
-}
-
-function resetButtons() {
-  recording = false;
-  playButton.disabled = !videoURL;
-  pauseButton.disabled = !videoURL;
-  recordButton.disabled = !videoURL;
-  cancelButton.disabled = true;
-  stopCanvasStream();
-}
-
-function applyMode() {
-  expertPanel.classList.toggle("visible", mode.value === "expert");
-  if (video.videoWidth) drawFrame();
-
-  if (mode.value === "auto" && video.videoWidth) {
-    const longEdge = Math.max(video.videoWidth, video.videoHeight);
-    const duration = Number.isFinite(video.duration) ? video.duration : 0;
-
-    depth.value = longEdge >= 1920 ? 7 : 9;
-    fps.value = "30";
-    resolution.value = longEdge >= 1920 ? "1080" : "720";
-    vbitrate.value = longEdge >= 1920 ? 10 : 6;
-    abitrate.value = "192000";
-
-    if (duration > 600) {
-      vbitrate.value = longEdge >= 1920 ? 8 : 5;
-    }
-
-    status("Réglages automatiques appliqués d’après la résolution et la durée. Vérifie l’effet avant l’export.");
-  }
-
-  depthValue.textContent = depth.value + " px";
-  vbitrateValue.textContent = vbitrate.value + " Mbit/s";
-}
-
-fileInput.addEventListener("change", () => {
-  const file = fileInput.files && fileInput.files[0];
-  if (!file) return;
-  if (recording) return status("Annule ou termine l’export avant de changer de vidéo.");
-
-  video.pause();
-  cancelAnimationFrame(animationFrame);
-  clearDownload();
-
-  if (videoURL) URL.revokeObjectURL(videoURL);
-  if (audioContext) audioContext.close().catch(() => {});
-  audioContext = audioSource = audioDestination = null;
-
-  videoURL = URL.createObjectURL(file);
-  video.src = videoURL;
-  video.muted = false;
-  video.volume = 1;
-  video.load();
-
-  playButton.disabled = pauseButton.disabled = recordButton.disabled = true;
-  status("Chargement de la vidéo… " + file.name);
-});
-
-video.addEventListener("loadedmetadata", () => {
-  drawFrame();
-  playButton.disabled = pauseButton.disabled = recordButton.disabled = false;
-  status(`Vidéo prête : ${video.videoWidth} × ${video.videoHeight}.`);
-});
-
-video.addEventListener("error", () => status("Impossible de lire cette vidéo. Essaie un autre fichier."));
-
-mode.addEventListener("change", applyMode);
-depth.addEventListener("input", () => {
-  depthValue.textContent = depth.value + " px";
-  drawFrame();
-});
-vbitrate.addEventListener("input", () => {
-  vbitrateValue.textContent = vbitrate.value + " Mbit/s";
-});
-
-playButton.addEventListener("click", async () => {
-  try {
-    createAudioGraph();
-    if (audioContext.state === "suspended") await audioContext.resume();
-    video.muted = false;
-    video.volume = 1;
-    if (video.ended) video.currentTime = 0;
-    await video.play();
-    startLoop();
-    status("Lecture en cours avec le son original.");
-  } catch (error) {
-    status("Lecture audio impossible : " + error.message);
-  }
-});
-
-pauseButton.addEventListener("click", () => {
-  video.pause();
-  cancelAnimationFrame(animationFrame);
-  drawFrame();
-  if (!recording) status("Lecture en pause.");
-});
-
-video.addEventListener("ended", () => {
-  cancelAnimationFrame(animationFrame);
-  drawFrame();
-  if (recording && mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
-});
-
-recordButton.addEventListener("click", async () => {
-  if (!videoURL || recording) return;
-
-  const mimeType = getMimeType();
-  if (mimeType === null) return status("Export impossible : format d’enregistrement compatible non disponible.");
-  if (typeof canvas.captureStream !== "function") return status("Export impossible : capture du canvas non disponible.");
-
-  clearDownload();
-  cancelled = false;
-
-  try {
-    createAudioGraph();
-    if (audioContext.state === "suspended") await audioContext.resume();
-
-    const audioTracks = audioDestination.stream.getAudioTracks();
-    if (!audioTracks.length) throw new Error("La piste audio n’a pas pu être préparée.");
-
-    video.pause();
-    video.currentTime = 0;
-    await new Promise(resolve => {
-      if (video.readyState >= 2 && video.currentTime === 0) resolve();
-      else video.addEventListener("seeked", resolve, { once: true });
-    });
-
     drawFrame();
-    const chosenFps = mode.value === "expert" ? Number(fps.value) : 30;
-    canvasStream = canvas.captureStream(chosenFps);
+  }
 
-    const stream = new MediaStream([
-      ...canvasStream.getVideoTracks(),
-      ...audioTracks
-    ]);
+  function applyAutomaticSettings() {
+    const width = video.videoWidth || 1280;
+    const height = video.videoHeight || 720;
+    const longestSide = Math.max(width, height);
 
-    const options = {};
-    if (mimeType) options.mimeType = mimeType;
-
-    if (mode.value === "expert") {
-      options.videoBitsPerSecond = Number(vbitrate.value) * 1_000_000;
-      options.audioBitsPerSecond = Number(abitrate.value);
-    } else if (mode.value === "auto") {
-      options.videoBitsPerSecond = Number(vbitrate.value) * 1_000_000;
-      options.audioBitsPerSecond = Number(abitrate.value);
+    if (longestSide > 1920) {
+      qualitySelect.value = "1080";
+      bitrateSelect.value = "12000000";
+    } else if (longestSide > 1280) {
+      qualitySelect.value = "1080";
+      bitrateSelect.value = "10000000";
     } else {
-      options.videoBitsPerSecond = 8_000_000;
-      options.audioBitsPerSecond = 192_000;
+      qualitySelect.value = "source";
+      bitrateSelect.value = "6000000";
     }
 
-    mediaRecorder = new MediaRecorder(stream, options);
+    fpsSelect.value = "30";
+    depthRange.value = "2";
+    updateDepthLabel();
+  }
+
+  function updateDepthLabel() {
+    depthValue.textContent = `${Number(depthRange.value).toFixed(1)} %`;
+    drawFrame();
+  }
+
+  function outputSize() {
+    const sourceW = video.videoWidth || 640;
+    const sourceH = video.videoHeight || 360;
+    const mode = modeSelect.value;
+    const quality = mode === "normal" ? "source" : qualitySelect.value;
+
+    let maxSide = Infinity;
+    if (quality === "1080") maxSide = 1920;
+    if (quality === "720") maxSide = 1280;
+
+    const scale = Math.min(1, maxSide / Math.max(sourceW, sourceH));
+    return {
+      width: Math.max(2, Math.round(sourceW * scale / 2) * 2),
+      height: Math.max(2, Math.round(sourceH * scale / 2) * 2)
+    };
+  }
+
+  function setCanvasSize() {
+    const size = outputSize();
+    if (canvas.width !== size.width || canvas.height !== size.height) {
+      canvas.width = size.width;
+      canvas.height = size.height;
+    }
+  }
+
+  function drawFrame() {
+    if (!ctx) return;
+    setCanvasSize();
+
+    const w = canvas.width;
+    const h = canvas.height;
+
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0, 0, w, h);
+
+    if (!video.videoWidth || video.readyState < 2) {
+      ctx.fillStyle = "#c5cbe0";
+      ctx.font = "16px system-ui";
+      ctx.textAlign = "center";
+      ctx.fillText("Choisis une vidéo pour afficher l’aperçu", w / 2, h / 2);
+      return;
+    }
+
+    const shift = Math.round(w * currentDepthPercent() / 100);
+    const reversed = swapViews.checked;
+    const redShift = reversed ? shift : -shift;
+    const blueShift = reversed ? -shift : shift;
+
+    /*
+      Anaglyphe rouge-bleu :
+      - le canal rouge provient d’une vue décalée ;
+      - le canal bleu provient de l’autre vue ;
+      - le vert est désactivé, car tes filtres semblent rouge et bleu,
+        et non rouge et cyan.
+    */
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(0, 0, w, h);
+    ctx.clip();
+
+    ctx.globalCompositeOperation = "source-over";
+    ctx.globalAlpha = 1;
+    ctx.drawImage(video, redShift, 0, w, h);
+    ctx.globalCompositeOperation = "multiply";
+    ctx.fillStyle = "rgb(255, 0, 0)";
+    ctx.fillRect(0, 0, w, h);
+
+    ctx.globalCompositeOperation = "lighter";
+    ctx.globalAlpha = 1;
+    ctx.drawImage(video, blueShift, 0, w, h);
+    ctx.globalCompositeOperation = "multiply";
+    ctx.fillStyle = "rgb(0, 0, 255)";
+    ctx.fillRect(0, 0, w, h);
+
+    ctx.restore();
+  }
+
+  function renderLoop() {
+    drawFrame();
+    animationFrame = requestAnimationFrame(renderLoop);
+  }
+
+  function ensureAudioRoute() {
+    if (!("AudioContext" in window || "webkitAudioContext" in window)) {
+      return Promise.resolve(false);
+    }
+
+    if (!audioContext) {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      audioContext = new AudioContextClass();
+      audioDestination = audioContext.createMediaStreamDestination();
+      audioSource = audioContext.createMediaElementSource(video);
+      audioSource.connect(audioContext.destination);
+      audioSource.connect(audioDestination);
+    }
+
+    return audioContext.resume().then(() => true).catch(() => false);
+  }
+
+  function supportedMimeType() {
+    if (!window.MediaRecorder) return "";
+    const candidates = [
+      "video/webm;codecs=vp9,opus",
+      "video/webm;codecs=vp8,opus",
+      "video/webm"
+    ];
+    return candidates.find(type => MediaRecorder.isTypeSupported(type)) || "";
+  }
+
+  function finishExport() {
+    if (!chunks.length) {
+      say("Aucun fichier exporté. Essaie un autre navigateur.");
+      resetExportUI();
+      return;
+    }
+
+    const mimeType = recorder && recorder.mimeType
+      ? recorder.mimeType
+      : "video/webm";
+
+    const blob = new Blob(chunks, { type: mimeType });
+    if (exportURL) URL.revokeObjectURL(exportURL);
+    exportURL = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = exportURL;
+    link.download = "prisme3d-rouge-bleu.webm";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    say("Export terminé. Le téléchargement de la vidéo a été lancé.");
+    resetExportUI();
+  }
+
+  function resetExportUI() {
+    exporting = false;
+    exportButton.disabled = !video.videoWidth;
+    playButton.disabled = !video.videoWidth;
+  }
+
+  async function startExport() {
+    if (!video.videoWidth || !canvas.captureStream) {
+      say("L’export du canevas n’est pas pris en charge dans ce navigateur.");
+      return;
+    }
+    if (!window.MediaRecorder) {
+      say("MediaRecorder n’est pas disponible dans ce navigateur.");
+      return;
+    }
+    if (exporting) return;
+
+    exporting = true;
     chunks = [];
-    recording = true;
-    playButton.disabled = pauseButton.disabled = recordButton.disabled = true;
-    cancelButton.disabled = false;
+    exportButton.disabled = true;
+    playButton.disabled = true;
 
-    mediaRecorder.addEventListener("dataavailable", event => {
-      if (event.data && event.data.size) chunks.push(event.data);
-    });
-
-    mediaRecorder.addEventListener("error", () => {
-      cancelled = true;
-      video.pause();
-      resetButtons();
-      status("Erreur d’enregistrement. Aucun export complet n’a été proposé.");
-    });
-
-    mediaRecorder.addEventListener("stop", () => {
-      if (!cancelled && chunks.length) {
-        const type = mediaRecorder.mimeType || mimeType || "video/mp4";
-        const blob = new Blob(chunks, { type });
-        if (!blob.size) {
-          status("Export échoué : le fichier créé est vide.");
-        } else {
-          exportURL = URL.createObjectURL(blob);
-          downloadLink.href = exportURL;
-          downloadLink.download = type.includes("webm") ? "prisme-3d.webm" : "prisme-3d.mp4";
-          downloadLink.style.display = "block";
-          status("Export terminé avec la piste audio. Appuie sur « Télécharger la vidéo ».");
-        }
-      } else {
-        status("Export annulé : aucun fichier proposé.");
-      }
-      resetButtons();
+    try {
+      setCanvasSize();
       drawFrame();
-    });
 
-    mediaRecorder.start(1000);
-    await video.play();
-    startLoop();
-    status("Export avec audio en cours… Ne quitte pas cette page.");
-  } catch (error) {
-    cancelled = true;
-    if (mediaRecorder && mediaRecorder.state !== "inactive") {
-      mediaRecorder.stop();
-    } else {
-      video.pause();
-      resetButtons();
-      status("Export avec audio impossible : " + error.message);
+      const audioReady = await ensureAudioRoute();
+      const fps = currentFps();
+      const canvasStream = canvas.captureStream(fps);
+      const tracks = [...canvasStream.getVideoTracks()];
+
+      if (audioReady && audioDestination) {
+        tracks.push(...audioDestination.stream.getAudioTracks());
+      }
+
+      const stream = new MediaStream(tracks);
+      const mimeType = supportedMimeType();
+      const options = { videoBitsPerSecond: currentBitrate() };
+      if (mimeType) options.mimeType = mimeType;
+
+      recorder = new MediaRecorder(stream, options);
+
+      recorder.ondataavailable = event => {
+        if (event.data && event.data.size > 0) chunks.push(event.data);
+      };
+
+      recorder.onerror = event => {
+        say("Erreur pendant l’export : " +
+          (event.error?.message || "le navigateur a interrompu l’enregistrement."));
+        try { recorder.stop(); } catch (_) {}
+      };
+
+      recorder.onstop = () => {
+        stream.getTracks().forEach(track => track.stop());
+        if (video.ended || video.currentTime >= video.duration) {
+          finishExport();
+        } else if (chunks.length) {
+          finishExport();
+        } else {
+          resetExportUI();
+        }
+      };
+
+      video.currentTime = 0;
+      await new Promise(resolve => {
+        if (video.readyState >= 2) resolve();
+        else video.addEventListener("seeked", resolve, { once: true });
+      });
+
+      recorder.start(1000);
+      await video.play();
+      say(audioReady
+        ? "Export en cours avec l’audio. Garde cette page ouverte."
+        : "Export vidéo en cours. L’audio n’est pas disponible dans ce navigateur.");
+
+      video.onended = () => {
+        if (recorder && recorder.state !== "inactive") recorder.stop();
+      };
+    } catch (error) {
+      exporting = false;
+      resetExportUI();
+      say("Impossible de lancer l’export : " + (error.message || error));
     }
   }
-});
 
-cancelButton.addEventListener("click", () => {
-  cancelled = true;
-  video.pause();
-  cancelAnimationFrame(animationFrame);
-  if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
-  else {
-    resetButtons();
-    status("Export annulé.");
-  }
-});
+  fileInput.addEventListener("change", () => {
+    const file = fileInput.files && fileInput.files[0];
+    if (!file) return;
 
-window.addEventListener("beforeunload", () => {
-  if (videoURL) URL.revokeObjectURL(videoURL);
-  if (exportURL) URL.revokeObjectURL(exportURL);
-  stopCanvasStream();
-  if (audioContext) audioContext.close().catch(() => {});
-});
+    if (videoURL) URL.revokeObjectURL(videoURL);
+    videoURL = URL.createObjectURL(file);
+    video.src = videoURL;
+    video.load();
+
+    say("Chargement de la vidéo…");
+    playButton.disabled = true;
+    exportButton.disabled = true;
+  });
+
+  video.addEventListener("loadedmetadata", () => {
+    setCanvasSize();
+    if (modeSelect.value === "auto") applyAutomaticSettings();
+    drawFrame();
+
+    playButton.disabled = false;
+    exportButton.disabled = false;
+    const duration = Number.isFinite(video.duration)
+      ? `${Math.round(video.duration)} s`
+      : "durée inconnue";
+
+    say(`Vidéo prête : ${video.videoWidth} × ${video.videoHeight}, ${duration}.`);
+  });
+
+  video.addEventListener("loadeddata", drawFrame);
+  video.addEventListener("seeked", drawFrame);
+  video.addEventListener("error", () => {
+    say("La vidéo n’a pas pu être lue. Essaie un fichier MP4 courant.");
+  });
+
+  modeSelect.addEventListener("change", updateModeUI);
+  depthRange.addEventListener("input", updateDepthLabel);
+  qualitySelect.addEventListener("change", drawFrame);
+  swapViews.addEventListener("change", drawFrame);
+
+  playButton.addEventListener("click", async () => {
+    if (!video.videoWidth) return;
+    try {
+      if (video.paused) {
+        await video.play();
+        say("Lecture en cours.");
+      } else {
+        video.pause();
+        say("Lecture en pause.");
+      }
+    } catch (error) {
+      say("Impossible de lire la vidéo : " + error.message);
+    }
+  });
+
+  exportButton.addEventListener("click", startExport);
+
+  video.addEventListener("play", () => {
+    cancelAnimationFrame(animationFrame);
+    renderLoop();
+  });
+
+  video.addEventListener("pause", () => {
+    cancelAnimationFrame(animationFrame);
+    drawFrame();
+  });
+
+  window.addEventListener("beforeunload", () => {
+    cancelAnimationFrame(animationFrame);
+    if (videoURL) URL.revokeObjectURL(videoURL);
+    if (exportURL) URL.revokeObjectURL(exportURL);
+    if (audioContext) audioContext.close().catch(() => {});
+  });
+
+  updateModeUI();
+  drawFrame();
+})();
 </script>
 </body>
 </html>

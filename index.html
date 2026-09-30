@@ -237,32 +237,15 @@ function drawFrame() {
     const offset = Math.round(Number(depth.value) * scale);
 
     for (let y = 0; y < height; y++) {
-  for (let x = 0; x < width; x++) {
-    const i = (y * width + x) * 4;
-
-    const redX = Math.min(width - 1, x + offset);
-    const blueX = Math.max(0, x - offset);
-
-    const redIndex = (y * width + redX) * 4;
-    const blueIndex = (y * width + blueX) * 4;
-
-    // Niveaux de gris pour chaque vue
-    const redView =
-      0.299 * original[redIndex] +
-      0.587 * original[redIndex + 1] +
-      0.114 * original[redIndex + 2];
-
-    const blueView =
-      0.299 * original[blueIndex] +
-      0.587 * original[blueIndex + 1] +
-      0.114 * original[blueIndex + 2];
-
-    // Une vue rouge, l’autre bleue — sans canal vert
-    pixels[i] = redView;
-    pixels[i + 1] = 0;
-    pixels[i + 2] = blueView;
-  }
-}
+      for (let x = 0; x < width; x++) {
+        const i = (y * width + x) * 4;
+        const rx = Math.min(width - 1, x + offset);
+        const cx = Math.max(0, x - offset);
+        const ri = (y * width + rx) * 4;
+        const ci = (y * width + cx) * 4;
+        pixels[i] = original[ri];
+        pixels[i + 1] = original[ci + 1];
+        pixels[i + 2] = original[ci + 2];
       }
     }
     ctx.putImageData(image, 0, 0);
